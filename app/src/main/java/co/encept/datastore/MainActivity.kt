@@ -1,6 +1,7 @@
 package co.encept.datastore
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.datastore.preferences.core.edit
@@ -17,37 +18,36 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-
         binding.apply {
             // Get User Data If It Exists
             CoroutineScope(Dispatchers.IO).launch {
                 getUserData()
             }
 
-
-
             // Save User Data
             btnSave.setOnClickListener {
                 CoroutineScope(Dispatchers.IO).launch {
                     saveUserData(
-                        edName.text.toString(),
-                        edEmail.text.toString()
+                            edName.text.toString(),
+                    edEmail.text.toString()
                     )
                 }
             }
-
 
             // Delete Saved User Data
             btnDelete.setOnClickListener {
                 CoroutineScope(Dispatchers.IO).launch {
                     deleteUserData()
-
                     getUserData()
                 }
             }
+
+            // Logout Button
+            btnLogout.setOnClickListener {
+                logout()
+            }
         }
     }
-
 
     private suspend fun saveUserData(name: String, email: String) {
         user.edit { usrData ->
@@ -76,11 +76,18 @@ class MainActivity : AppCompatActivity() {
     }
 
     private suspend fun deleteUserData() {
-        user.edit { usrData ->
-            usrData.clear()
+        user.edit { userData ->
+            userData.clear()
         }
 
         // Display Data after delete:
         getUserData()
+    }
+
+    private fun logout() {
+        // Clear user data
+        CoroutineScope(Dispatchers.IO).launch {
+            deleteUserData()
+        }
     }
 }
